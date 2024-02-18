@@ -4,6 +4,7 @@ import io.tappatappa.repository.UserRepository
 import io.tappatappa.repository.model.UserDto
 import io.tappatappa.service.model.User
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class UserService(
@@ -29,7 +30,8 @@ class UserService(
     }
 
     fun save(user: User): User {
-        val userDto = user.toUserDto()
+        val uuid = UUID.randomUUID().toString()
+        val userDto = user.toUserDto(uuid)
         return userRepository.save(userDto).toUser()
     }
 
@@ -45,12 +47,12 @@ private fun UserDto.toUser(): User = User(
     avatar = this.avatar
 )
 
-private fun User.toUserDto(): UserDto = UserDto(
+private fun User.toUserDto(uuid: String): UserDto = UserDto(
     login = this.login,
     email = this.email,
     firstname = this.firstname,
     lastname = this.lastname,
     externalId = this.externalId,
     avatar = this.avatar,
-    uuid = ""
+    uuid = uuid
 )

@@ -1,14 +1,11 @@
 package io.tappatappa.repository.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "user_table")
 data class UserDto(
-    @Id @GeneratedValue val id: Long? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
     val uuid: String? = null,
     val login: String,
     val email: String,
