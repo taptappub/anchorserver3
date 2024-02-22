@@ -1,12 +1,15 @@
 package io.tappatappa.repository.model
 
+import java.util.UUID
 import javax.persistence.*
 
 @Entity
 @Table(name = "user_table")
 data class UserDto(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-    val uuid: String? = null,
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @Column(name = "id", updatable = false, nullable = false)
+    val id: UUID,
     val login: String,
     val email: String,
     val externalId: String,
@@ -14,4 +17,16 @@ data class UserDto(
     val lastname: String?,
     val avatar: String? = null,
     val isDeleted: Boolean = false
-)
+) {
+    // Default no-argument constructor required by Hibernate
+    constructor() : this(
+        UUID.randomUUID(),
+        "",
+        "",
+        "",
+        null,
+        null,
+        null,
+        false
+    )
+}

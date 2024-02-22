@@ -24,7 +24,7 @@ class UserController(
         val savedUser: User = service.save(user)
         val location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
-            .buildAndExpand(savedUser.uuid)
+            .buildAndExpand(savedUser.id)
             .toUri()
         return ResponseEntity.created(location).body(savedUser)
     }

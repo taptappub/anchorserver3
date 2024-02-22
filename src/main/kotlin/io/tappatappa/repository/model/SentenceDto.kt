@@ -1,18 +1,27 @@
 package io.tappatappa.repository.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
+import java.util.*
+import javax.persistence.*
 
 @Entity
 @Table(name = "sentence_table")
 data class SentenceDto(
-    @Id @GeneratedValue var id: Long? = null,
-    val uuid: String,
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @Column(name = "id", updatable = false, nullable = false)
+    val id: UUID,
     val externalId: String?,
     val sentence: String,
-    var userId: Long,
+    var userId: UUID,
     val words: String,
     val isDeleted: Boolean = false
-)
+) {
+    constructor() : this(
+        UUID.randomUUID(),
+        "",
+        "",
+        UUID.randomUUID(),
+        "",
+        false
+    )
+}

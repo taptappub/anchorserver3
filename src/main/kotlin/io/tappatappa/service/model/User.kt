@@ -1,9 +1,10 @@
 package io.tappatappa.service.model
 
+import java.util.*
 import javax.validation.constraints.Email
 
 data class User (
-    val uuid: String? = null,
+    val id: UUID? = null,
     @Email
     var email: String,
     var login: String,

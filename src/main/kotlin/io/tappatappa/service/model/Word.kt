@@ -1,7 +1,9 @@
 package io.tappatappa.service.model
 
+import java.util.UUID
+
 data class Word(
-    val uuid: String? = null,
+    val id: UUID? = null,
     val externalId: String?,
     var word: String,
     var description: String,

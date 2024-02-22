@@ -1,54 +1,43 @@
 package io.tappatappa.service
 
-import io.tappatappa.repository.mock.MockSentenceRepository
-import io.tappatappa.repository.mock.MockUserRepository
+import io.tappatappa.repository.SentenceRepository
 import io.tappatappa.repository.model.SentenceDto
 import io.tappatappa.service.model.Sentence
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class SentenceService(
-    //private val groupRepository: GroupRepository
-    private val serviceRepository: MockSentenceRepository,
-    private val userRepository: MockUserRepository
+    private val serviceRepository: SentenceRepository
 ) {
-    fun findAll(userUUID: String): List<Sentence> {
-        val userId = getUserId(userUUID)
-        return serviceRepository.findAll(userId)
-            .filterNotNull()
-            .filter { !it.isDeleted }
+    fun findAll(userId: UUID): List<Sentence> {
+        return serviceRepository.findAllByUserId(userId)
             .map { sentenceDto ->
                 sentenceDto.toSentence()
             }
     }
 
-    fun findByUUID(groupUUID: String, userUUID: String): Sentence? {
-        val userId = getUserId(userUUID)
-        return serviceRepository.findByUUID(groupUUID, userId)
+    fun findById(sentenceId: UUID): Sentence? {
+        return serviceRepository.findById(sentenceId)
+            .getOrNull()
             ?.toSentence()
     }
 
-    fun save(sentence: Sentence, userUUID: String): Sentence {
-        val userId = getUserId(userUUID)
+    fun save(sentence: Sentence, userId: UUID): Sentence {
         val sentenceDto = sentence.toSentenceDto(userId)
         return serviceRepository.save(sentenceDto)
             .toSentence()
     }
 
-    fun delete(uuid: String, userUUID: String) {
-        val userId = getUserId(userUUID)
-        serviceRepository.delete(uuid, userId)
-    }
-
-    private fun getUserId(userUUID: String): Long {
-        return userRepository.findUserIdByUUID(userUUID)
-            ?: throw IllegalStateException("there is no user with userUUID = $userUUID")
+    fun delete(id: UUID) {
+        serviceRepository.deleteById(id)
     }
 }
 
-private fun Sentence.toSentenceDto(userId: Long): SentenceDto {
+private fun Sentence.toSentenceDto(userId: UUID): SentenceDto {
     return SentenceDto(
-        uuid = "",
+        id = UUID.randomUUID(),
         externalId = this.externalId,
         userId = userId,
         sentence = this.sentence,
@@ -57,7 +46,7 @@ private fun Sentence.toSentenceDto(userId: Long): SentenceDto {
 }
 
 private fun SentenceDto.toSentence() = Sentence(
-    uuid = this.uuid,
+    id = this.id,
     sentence = this.sentence,
     externalId = this.externalId,
     words = this.words.split(',')

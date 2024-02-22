@@ -1,56 +1,44 @@
 package io.tappatappa.service
 
-import io.tappatappa.repository.mock.MockGroupRepository
-import io.tappatappa.repository.mock.MockUserRepository
-import io.tappatappa.repository.mock.MockWordRepository
+
+import io.tappatappa.repository.WordRepository
 import io.tappatappa.repository.model.WordDto
 import io.tappatappa.service.model.Word
 import org.springframework.stereotype.Service
+import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class WordService(
     //private val groupRepository: GroupRepository
-    private val wordRepository: MockWordRepository,
-    private val groupRepository: MockGroupRepository,
-    private val userRepository: MockUserRepository
+    private val wordRepository: WordRepository
 ) {
 
-    fun findAll(groupUUID: String, userId: String): List<Word> {
-        val groupId = getGroupId(groupUUID, userId)
-        return wordRepository.findAll(groupId)
-            .filterNotNull()
-            .filter { !it.isDeleted }
+    fun findAll(groupId: UUID, userId: UUID): List<Word> {
+        return wordRepository.findAllByGroupId(groupId)
             .map { wordDto -> wordDto.toWord() }
     }
 
-    fun findByUUID(groupUUID: String, uuid: String, userId: String): Word? {
-        val groupId = getGroupId(groupUUID, userId)
-        return wordRepository.findByUUID(groupId)
+    fun findByUUID(groupId: UUID, wordId: UUID): Word? {
+        return wordRepository.findAllByGroupIdAndWordId(groupId, wordId)
+            .getOrNull()
             ?.toWord()
     }
 
-    fun save(word: Word, groupUUID: String, userId: String): Word {
-        val groupId = getGroupId(groupUUID, userId)
-        return wordRepository.save(
-            word = word.toWordDto(groupId)
-        ).toWord()
+    fun save(word: Word, groupId: UUID): Word {
+        val wordDto = word.toWordDto(groupId)
+        return wordRepository.save(wordDto)
+            .toWord()
     }
 
-    fun delete(wordUUID: String, groupUUID: String, userId: String) {
-        val groupId = getGroupId(groupUUID, userId)
-        wordRepository.delete(wordUUID, groupId)
+    fun delete(wordId: UUID) {
+        wordRepository.deleteById(wordId)
     }
 
-    private fun getGroupId(groupUUID: String, userUUID: String): Long {
-        val userId = userRepository.findUserIdByUUID(userUUID)
-            ?: throw IllegalStateException("there is no user with userUUID = $userUUID")
-        return groupRepository.findGroupIdByUUID(groupUUID, userId)
-            ?: throw IllegalStateException("there is no group with groupUUID = $groupUUID")
-    }
 }
 
-fun Word.toWordDto(groupId: Long) = WordDto(
-    uuid = "",
+fun Word.toWordDto(groupId: UUID) = WordDto(
+    id = UUID.randomUUID(),
     groupId = groupId,
     externalId = this.externalId,
     description = this.description,
@@ -61,7 +49,7 @@ fun Word.toWordDto(groupId: Long) = WordDto(
 )
 
 fun WordDto.toWord() = Word(
-    uuid = this.uuid,
+    id = this.id,
     externalId = this.externalId,
     word = this.word,
     description = this.description,

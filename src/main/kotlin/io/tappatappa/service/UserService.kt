@@ -15,10 +15,9 @@ class UserService(
     fun findAll(): List<User> {
         return userRepository.findAll()
             .filterNotNull()
-            .filter{ !it.isDeleted }
             .map { userDto ->
             User(
-                uuid = userDto.uuid,
+                id = userDto.id,
                 login = userDto.login,
                 externalId = userDto.externalId,
                 firstname = userDto.firstname,
@@ -30,7 +29,7 @@ class UserService(
     }
 
     fun save(user: User): User {
-        val uuid = UUID.randomUUID().toString()
+        val uuid = UUID.randomUUID()
         val userDto = user.toUserDto(uuid)
         return userRepository.save(userDto).toUser()
     }
@@ -38,7 +37,7 @@ class UserService(
 }
 
 private fun UserDto.toUser(): User = User(
-    uuid = this.uuid,
+    id = this.id,
     login = this.login,
     email = this.email,
     firstname = this.firstname,
@@ -47,12 +46,12 @@ private fun UserDto.toUser(): User = User(
     avatar = this.avatar
 )
 
-private fun User.toUserDto(uuid: String): UserDto = UserDto(
+private fun User.toUserDto(uuid: UUID): UserDto = UserDto(
+    id = uuid,
     login = this.login,
     email = this.email,
     firstname = this.firstname,
     lastname = this.lastname,
     externalId = this.externalId,
-    avatar = this.avatar,
-    uuid = uuid
+    avatar = this.avatar
 )

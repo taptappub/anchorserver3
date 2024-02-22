@@ -5,6 +5,7 @@ import io.tappatappa.service.model.Sentence
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+import java.util.UUID
 
 @RestController
 @RequestMapping(value = ["v1/sentence"])
@@ -14,38 +15,36 @@ class SentenceController(
 
     @GetMapping(value = ["/all"])
     fun findAll(
-        @RequestHeader("USER_ID") userId: String
+        @RequestHeader("USER_ID") userId: UUID
     ): List<Sentence> {
         return service.findAll(userId)
     }
 
     @GetMapping(value = ["/{id}"])
     fun findById(
-        @PathVariable("id") uuid: String,
-        @RequestHeader("USER_ID") userId: String
+        @PathVariable("id") id: UUID
     ): Sentence? {
-        return service.findByUUID(uuid, userId)
+        return service.findById(id)
     }
 
     @PostMapping("/add")
     fun save(
         @RequestBody sentence: Sentence,
-        @RequestHeader("USER_ID") userId: String
+        @RequestHeader("USER_ID") userId: UUID
     ): ResponseEntity<Sentence> {
         val savedSentence = service.save(sentence, userId)
         val location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
-            .buildAndExpand(savedSentence.uuid)
+            .buildAndExpand(savedSentence.id)
             .toUri()
         return ResponseEntity.created(location).body(savedSentence)
     }
 
     @DeleteMapping(value = ["/{id}"])
     fun delete(
-        @PathVariable("id") uuid: String,
-        @RequestHeader("USER_ID") userId: String
+        @PathVariable("id") id: UUID
     ) {
-        service.delete(uuid, userId)
+        service.delete(id)
     }
 
 }

@@ -5,6 +5,7 @@ import io.tappatappa.service.model.Word
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+import java.util.*
 
 @RestController
 @RequestMapping(value = ["v1/{groupId}/word"])
@@ -14,49 +15,45 @@ class WordController(
 
     @GetMapping(value = ["/all"])
     fun findAll(
-        @PathVariable("groupId") uuid: String,
-        @RequestHeader("USER_ID") userId: String
+        @PathVariable("groupId") uuid: UUID,
+        @RequestHeader("USER_ID") userId: UUID
     ): List<Word> {
         return service.findAll(uuid, userId)
     }
 
     @GetMapping(value = ["/{id}"])
     fun findById(
-        @PathVariable("groupId") groupId: String,
-        @PathVariable("id") uuid: String,
-        @RequestHeader("USER_ID") userId: String
+        @PathVariable("groupId") groupId: UUID,
+        @PathVariable("id") wordId: UUID,
     ): Word? {
-        return service.findByUUID(groupId, uuid, userId)
+        return service.findByUUID(groupId, wordId)
     }
 
     @PostMapping("/add")
     fun save(
-        @PathVariable("groupId") groupId: String,
-        @RequestBody word: Word,
-        @RequestHeader("USER_ID") userId: String
+        @PathVariable("groupId") groupId: UUID,
+        @RequestBody word: Word
     ): ResponseEntity<Word> {
-        val savedGroup = service.save(word, groupId, userId)
+        val savedGroup = service.save(word, groupId)
         val location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
-            .buildAndExpand(savedGroup.uuid)
+            .buildAndExpand(savedGroup.id)
             .toUri()
         return ResponseEntity.created(location).body(savedGroup)
     }
 
     @DeleteMapping(value = ["/{id}"])
     fun delete(
-        @PathVariable("groupId") groupId: String,
-        @PathVariable("id") uuid: String,
-        @RequestHeader("USER_ID") userId: String
+        @PathVariable("id") id: UUID
     ) {
-        service.delete(uuid, groupId, userId)
+        service.delete(id)
     }
 
 }
-//
-//добавь Sentence
-//добавь h2
-//добавь POSTGRE
-//добавь автоматизацию в Постман
-//добавь нормальную авторизацию (кейклоак???)
-//добавь тесты
+////
+////добавь Sentence
+////добавь h2
+////добавь POSTGRE
+////добавь автоматизацию в Постман
+////добавь нормальную авторизацию (кейклоак???)
+////добавь тесты
